@@ -4,7 +4,7 @@ from .models import *
 from django.http import JsonResponse
 import json
 import datetime
-
+from .utils import cookieCart
 # Create your views here.
 
 class ProductListView(ListView):
@@ -22,8 +22,8 @@ class ProductListView(ListView):
             return data
         else:
             data= super().get_context_data(**kwargs)
-            orderCount=0
-            data['orderCount']=orderCount
+            cookieData= cookieCart(self.request)  
+            data['orderCount']=cookieData['orderCount']
             data['shipping']=False
             return data
         
@@ -36,12 +36,16 @@ def cart(request):
         orderItems=order.orderitem_set.all()
         orderCount=order.orders
         shipping= order.shippingMethod
+        context={'items':orderItems,'orderTotal':orderTotal,'orderCount':orderCount,'shipping':shipping}
     else:
-        orderTotal =0
-        orderCount=0
-        orderItems=[]   
-        shipping=False 
-    return render(request,'store/cart.html',{'items':orderItems,'orderTotal':orderTotal,'orderCount':orderCount,'shipping':shipping})
+        cookieData= cookieCart(request)  
+        orderItems = cookieData['items']
+        orderTotal = cookieData['orderTotal']
+        orderCount = cookieData['orderCount']
+
+        context={'items':orderItems,'orderTotal':orderTotal,'orderCount':orderCount,'shipping':False}
+
+    return render(request,'store/cart.html',context)
 
 def checkout(request):
     if request.user.is_authenticated:
@@ -52,9 +56,10 @@ def checkout(request):
         orderCount=order.orders
         shipping= order.shippingMethod
     else:
-        orderTotal =0
-        orderCount=0
-        orderItems=[]  
+        cookieData= cookieCart(request)  
+        orderItems = cookieData['items']
+        orderTotal = cookieData['orderTotal']
+        orderCount = cookieData['orderCount']
         shipping= False
     return render(request,'store/checkout.html',{'items':orderItems,'orderTotal':orderTotal,'orderCount':orderCount,'shipping':shipping})
 

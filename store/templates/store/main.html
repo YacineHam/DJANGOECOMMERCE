@@ -17,7 +17,6 @@
     <script>
       var user = "{{request.user}}";
       var shipping = "{{shipping}}";
-      console.log("**********", shipping);
       function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== "") {
@@ -34,7 +33,23 @@
         }
         return cookieValue;
       }
+      function getCookie1(name) {
+        var elements = document.cookie.split(";");
+        for (var i = 0; i < elements.length; i++) {
+          var tmp = elements[i].split("=");
+          if (name == tmp[0].trim()) {
+            return decodeURIComponent(tmp[1]);
+          }
+        }
+        return null;
+      }
+      var cart = JSON.parse(getCookie1("cart"));
+      console.log(cart);
       const csrftoken = getCookie("csrftoken");
+      if (cart == undefined) {
+        cart = {};
+        document.cookie = "cart=" + JSON.stringify(cart) + ";domain=;path=/";
+      }
     </script>
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
   </head>
