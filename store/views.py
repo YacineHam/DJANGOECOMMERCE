@@ -101,14 +101,14 @@ def proccesOrder(request):
         print('user is not authenticated ')
     return JsonResponse("Order Procesed",safe=False)
 
-#def proccesOrder(request):
-#    data = json.loads(request.body)
-#    shippingInfo = data['shipping']
-#    if request.user.is_authenticated():
-#        customer = request.user.customer
-#        order = Order.objects.get_or_create(customer=customer,completed=False)
-#        order.transaction_id = datetime.now()
-#        order.completed=True
-#        address = ShippingAdress(customer=customer,order=order,city=shippingInfo['city'],state=shippingInfo['state'],address=shippingInfo['address'],zipcode=shippingInfo['zipcode'])
-#    
-#    return JsonResponse('order proceses',safe=False)
+def proccesOrder(request):
+    data = json.loads(request.body)
+    shippingInfo = data['shipping']
+    if request.user.is_authenticated():
+        customer = request.user.customer
+        order = Order.objects.get_or_create(customer=customer,completed=False)
+        order.transaction_id = datetime.now()
+        order.completed=True
+        address = ShippingAdress(customer=customer,order=order,city=shippingInfo['city'],state=shippingInfo['state'],address=shippingInfo['address'],zipcode=shippingInfo['zipcode'])
+    
+    return JsonResponse('order proceses',safe=False)
