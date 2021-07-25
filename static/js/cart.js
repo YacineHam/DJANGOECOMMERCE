@@ -39,7 +39,7 @@ function addCookieItem(productId, action1) {
       console.log("created");
     } else {
       cart[productId]["quantity"] += 1;
-      console.log("added");
+      console.log(cart[productId]);
     }
   }
   if (action1 == "remove") {

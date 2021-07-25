@@ -48,6 +48,7 @@
       const csrftoken = getCookie("csrftoken");
       if (cart == undefined) {
         cart = {};
+        console.log("Overided");
         document.cookie = "cart=" + JSON.stringify(cart) + ";domain=;path=/";
       }
     </script>

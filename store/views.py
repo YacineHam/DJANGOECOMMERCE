@@ -4,7 +4,7 @@ from .models import *
 from django.http import JsonResponse
 import json
 import datetime
-from .utils import cookieCart
+from .utils import cookieCart, guestOrder
 # Create your views here.
 
 class ProductListView(ListView):
@@ -60,7 +60,8 @@ def checkout(request):
         orderItems = cookieData['items']
         orderTotal = cookieData['orderTotal']
         orderCount = cookieData['orderCount']
-        shipping= False
+        print(cookieData['shipping'])
+        shipping= cookieData['shipping']
     return render(request,'store/checkout.html',{'items':orderItems,'orderTotal':orderTotal,'orderCount':orderCount,'shipping':shipping})
 
 
@@ -88,32 +89,33 @@ def proccesOrder(request):
     if request.user.is_authenticated:
         customer = request.user.customer
         order , created= Order.objects.get_or_create(customer=customer,completed=False)
+    else:
+        customer,order = guestOrder(request,data)
         order.transaction_id=tranasction_id
         total = float(data['form']['total'])
         if total == order.orderTotal:
             order.completed=True
-        order.save()
+            order.save()
         if order.shippingMethod == True:
-            ShippingAdress.objects.create(
-                customer=customer,
-                order=order,
-                city=data['shipping']['city'],
-                state=data['shipping']['state'],
-                address=data['shipping']['address'],
-                zip_code=data['shipping']['zipcode']
-            )
-    else:
-        print('user is not authenticated ')
+                    ShippingAdress.objects.create(
+                    customer=customer,
+                    order=order,
+                    city=data['shipping']['city'],
+                    state=data['shipping']['state'],
+                    address=data['shipping']['address'],
+                    zip_code=data['shipping']['zipcode']
+                )
+        
     return JsonResponse("Order Procesed",safe=False)
 
-def proccesOrder(request):
-    data = json.loads(request.body)
-    shippingInfo = data['shipping']
-    if request.user.is_authenticated():
-        customer = request.user.customer
-        order = Order.objects.get_or_create(customer=customer,completed=False)
-        order.transaction_id = datetime.now()
-        order.completed=True
-        address = ShippingAdress(customer=customer,order=order,city=shippingInfo['city'],state=shippingInfo['state'],address=shippingInfo['address'],zipcode=shippingInfo['zipcode'])
-    
-    return JsonResponse('order proceses',safe=False)
+#def proccesOrder(request):
+#    data = json.loads(request.body)
+#    shippingInfo = data['shipping']
+#    if request.user.is_authenticated:
+#        customer = request.user.customer
+#        order = Order.objects.get_or_create(customer=customer,completed=False)
+#        order.transaction_id = datetime.now()
+#        order.completed=True
+#        address = ShippingAdress(customer=customer,order=order,city=shippingInfo['city'],state=shippingInfo['state'],address=shippingInfo['address'],zipcode=shippingInfo['zipcode'])
+#    
+#    return JsonResponse('order proceses',safe=False)

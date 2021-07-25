@@ -159,7 +159,7 @@
         if (user == "AnonymousUser") {
           userFormData.name = form.name.value;
           userFormData.email = form.email.value;
-          userFormData.total = form.total.value;
+          userFormData.total = cartTotal;
         }
         console.log(shippingInfo);
         console.log(userFormData);
@@ -178,6 +178,9 @@
           .then((data) => {
             console.log("succes", data);
             alert("Transaction Completed");
+            cart = {};
+            document.cookie =
+              "cart=" + JSON.stringify(cart) + ";domain=;path=/";
             window.location.href = "{% url 'store' %}";
           });
       }
